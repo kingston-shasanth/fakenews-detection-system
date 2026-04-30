@@ -12,6 +12,10 @@ A professional-grade AI-powered web application that detects fake job postings u
 
 ![Dashboard Preview](https://via.placeholder.com/680x400/0b0f14/3b82f6?text=JobGuard+AI+Dashboard)
 
+<p align="center">
+  <img src="jobgaurd.gif" alt="JobGuard AI Demo" width="760">
+</p>
+
 ## ✨ Features
 
 - **Hybrid Detection Engine** - Combines ML predictions with rule-based keyword analysis
