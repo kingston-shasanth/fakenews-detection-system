@@ -1,0 +1,1153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JobGuard AI - Fake Job Detection</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-dark: #0b0f14;
+            --bg-card: #111827;
+            --bg-elevated: #1f2937;
+            --bg-input: #0d1117;
+            
+            --text-primary: #f3f4f6;
+            --text-secondary: #9ca3af;
+            --text-muted: #6b7280;
+            
+            --border-subtle: #374151;
+            --border-focus: #3b82f6;
+            
+            --accent-blue: #2563eb;
+            --accent-blue-light: #3b82f6;
+            --accent-green: #22c55e;
+            --accent-red: #ef4444;
+            --accent-yellow: #facc15;
+            
+            --font-sans: 'Inter', -apple-system, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            
+            --radius-sm: 6px;
+            --radius-md: 8px;
+            --radius-lg: 10px;
+            
+            --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.4);
+            --shadow-glow: 0 0 20px rgba(59, 130, 246, 0.3);
+            --shadow-glow-red: 0 0 20px rgba(239, 68, 68, 0.3);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: var(--font-sans);
+            background: linear-gradient(180deg, #111827 0%, #0b0f14 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            max-width: 680px;
+            margin: 0 auto;
+            padding: 40px 24px;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 32px;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .logo {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-blue-light));
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-glow);
+        }
+        
+        .logo i { color: white; font-size: 18px; }
+        
+        .header-title h1 {
+            font-size: 20px;
+            font-weight: 600;
+            letter-spacing: -0.4px;
+        }
+        
+        .header-title p {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11px;
+            color: var(--accent-green);
+            background: rgba(34, 197, 94, 0.1);
+            padding: 6px 12px;
+            border-radius: var(--radius-sm);
+        }
+        
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            background: var(--accent-green);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Main Card */
+        .main-card {
+            background: linear-gradient(180deg, #151b26 0%, #111827 100%);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-card);
+            border: 1px solid var(--border-subtle);
+        }
+
+        /* Input */
+        .input-label {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+            display: block;
+        }
+        
+        .input-field {
+            width: 100%;
+            min-height: 140px;
+            background: var(--bg-input);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            padding: 14px;
+            color: var(--text-primary);
+            font-family: var(--font-sans);
+            font-size: 13px;
+            line-height: 1.7;
+            resize: vertical;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+        
+        .input-field:focus {
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15), inset 0 0 8px rgba(59, 130, 246, 0.05);
+        }
+        
+        .input-field::placeholder {
+            color: var(--text-muted);
+        }
+
+        .input-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .btn {
+            padding: 10px 16px;
+            font-family: var(--font-sans);
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            border: 1px solid var(--border-subtle);
+            background: var(--bg-elevated);
+            color: var(--text-secondary);
+            border-radius: var(--radius-md);
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .btn:hover {
+            background: var(--bg-card);
+            color: var(--text-primary);
+            transform: translateY(-1px);
+        }
+        
+        .btn-sample-real:hover {
+            color: var(--accent-green);
+            border-color: var(--accent-green);
+        }
+        
+        .btn-sample-fake:hover {
+            color: var(--accent-red);
+            border-color: var(--accent-red);
+        }
+        
+        .btn-primary {
+            width: 100%;
+            padding: 14px 24px;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-blue-light));
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+            margin-top: 16px;
+            border: none;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-glow);
+            justify-content: center;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 24px rgba(59, 130, 246, 0.4);
+        }
+
+        /* Loading */
+        .loading-state {
+            display: none;
+            padding: 48px;
+            text-align: center;
+            margin-bottom: 24px;
+            background: linear-gradient(180deg, #151b26 0%, #111827 100%);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            border: 1px solid var(--border-subtle);
+        }
+        
+        .loading-state.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .loading-spinner {
+            width: 32px;
+            height: 32px;
+            border: 3px solid var(--border-subtle);
+            border-top-color: var(--accent-blue);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 16px;
+        }
+        
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        .loading-text {
+            font-size: 14px;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+        
+        .loading-subtext {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* Error */
+        .error-state {
+            display: none;
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid var(--accent-red);
+            border-radius: var(--radius-md);
+            padding: 12px 16px;
+            margin-bottom: 24px;
+            font-size: 13px;
+            color: var(--accent-red);
+        }
+        
+        .error-state.active {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Results */
+        .results-section {
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+        
+        .results-section.active {
+            display: block;
+        }
+
+        /* Result Card */
+        .result-card {
+            background: linear-gradient(180deg, #151b26 0%, #111827 100%);
+            border-radius: var(--radius-lg);
+            padding: 28px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow-card);
+            border: 1px solid var(--border-subtle);
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 28px;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .result-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+        }
+        
+        .result-card.high-risk::before {
+            background: linear-gradient(90deg, var(--accent-red), #f87171);
+            box-shadow: 0 0 30px rgba(239, 68, 68, 0.5);
+        }
+        
+        .result-card.safe::before {
+            background: linear-gradient(90deg, var(--accent-green), #34d399);
+        }
+        
+        .result-card.suspicious::before {
+            background: linear-gradient(90deg, var(--accent-yellow), #fbbf24);
+        }
+        
+        @media (max-width: 600px) {
+            .result-card { grid-template-columns: 1fr; text-align: center; }
+        }
+
+        .result-content {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .result-icon {
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius-md);
+            font-size: 26px;
+            flex-shrink: 0;
+        }
+        
+        .result-icon.high-risk {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--accent-red);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.2);
+        }
+        
+        .result-icon.safe {
+            background: rgba(34, 197, 94, 0.15);
+            color: var(--accent-green);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+        
+        .result-icon.suspicious {
+            background: rgba(250, 204, 21, 0.15);
+            color: var(--accent-yellow);
+            border: 1px solid rgba(250, 204, 21, 0.3);
+        }
+
+        .result-text h2 {
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: -0.96px;
+            margin-bottom: 6px;
+        }
+        
+        .result-text h2.high-risk { color: var(--accent-red); }
+        .result-text h2.safe { color: var(--accent-green); }
+        .result-text h2.suspicious { color: var(--accent-yellow); }
+
+        .result-text p {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .result-metrics {
+            text-align: right;
+        }
+        
+        @media (max-width: 600px) {
+            .result-metrics { text-align: center; }
+        }
+
+        .risk-badge {
+            display: inline-block;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            padding: 5px 12px;
+            border-radius: var(--radius-sm);
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+        }
+        
+        .risk-badge.high { background: rgba(239, 68, 68, 0.15); color: var(--accent-red); }
+        .risk-badge.medium { background: rgba(250, 204, 21, 0.15); color: var(--accent-yellow); }
+        .risk-badge.low { background: rgba(34, 197, 94, 0.15); color: var(--accent-green); }
+
+        .confidence-label {
+            font-size: 10px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .confidence-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text-primary);
+            font-family: var(--font-mono);
+        }
+
+        /* Risk Meter */
+        .risk-meter {
+            margin-top: 16px;
+            width: 140px;
+        }
+        
+        .risk-meter-bar {
+            height: 6px;
+            background: var(--bg-elevated);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        
+        .risk-meter-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.6s ease;
+        }
+        
+        .risk-meter-fill.high { background: linear-gradient(90deg, #ef4444, #f87171); }
+        .risk-meter-fill.medium { background: linear-gradient(90deg, #facc15, #fbbf24); }
+        .risk-meter-fill.low { background: linear-gradient(90deg, #22c55e, #34d399); }
+
+        /* Grid */
+        .results-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        
+        @media (max-width: 600px) {
+            .results-grid { grid-template-columns: 1fr; }
+        }
+
+        .panel {
+            background: linear-gradient(180deg, #151b26 0%, #111827 100%);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            box-shadow: var(--shadow-card);
+            border: 1px solid var(--border-subtle);
+        }
+        
+        .panel-title {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 16px;
+        }
+
+        /* Scores */
+        .score-list {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .score-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .score-name {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .score-value {
+            font-size: 13px;
+            font-weight: 600;
+            font-family: var(--font-mono);
+        }
+
+        /* Keywords */
+        .keyword-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .keyword-tag {
+            padding: 5px 10px;
+            font-size: 11px;
+            font-weight: 500;
+            border-radius: 6px;
+            font-family: var(--font-mono);
+        }
+        
+        .keyword-tag.high {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--accent-red);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            box-shadow: 0 0 10px rgba(239, 68, 68, 0.15);
+        }
+        
+        .keyword-tag.warning {
+            background: rgba(250, 204, 21, 0.15);
+            color: var(--accent-yellow);
+            border: 1px solid rgba(250, 204, 21, 0.3);
+        }
+
+        .no-keywords {
+            font-size: 12px;
+            color: var(--accent-green);
+        }
+
+        /* Collapsible */
+        .collapse-card {
+            background: linear-gradient(180deg, #151b26 0%, #111827 100%);
+            border-radius: var(--radius-lg);
+            margin-bottom: 12px;
+            box-shadow: var(--shadow-card);
+            border: 1px solid var(--border-subtle);
+            overflow: hidden;
+        }
+
+        .collapse-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 20px;
+            cursor: pointer;
+            user-select: none;
+            transition: background 0.15s;
+        }
+        
+        .collapse-header:hover {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .collapse-title {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .collapse-arrow {
+            font-size: 10px;
+            color: var(--text-muted);
+            transition: transform 0.2s;
+        }
+        
+        .collapse-card.open .collapse-arrow {
+            transform: rotate(180deg);
+        }
+
+        .collapse-content {
+            display: none;
+            padding: 0 20px 18px;
+        }
+        
+        .collapse-card.open .collapse-content {
+            display: block;
+        }
+
+        /* Explanation */
+        .explanation-text {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.7;
+            padding: 14px;
+            background: var(--bg-input);
+            border-radius: var(--radius-md);
+            border-left: 3px solid var(--accent-blue);
+        }
+
+        /* Checklist */
+        .checklist {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+        
+        @media (max-width: 500px) {
+            .checklist { grid-template-columns: 1fr; }
+        }
+
+        .check-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            background: var(--bg-input);
+            border-radius: var(--radius-sm);
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .check-icon {
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            font-size: 9px;
+            flex-shrink: 0;
+        }
+        
+        .check-icon.pass { background: rgba(34, 197, 94, 0.15); color: var(--accent-green); }
+        .check-icon.fail { background: rgba(239, 68, 68, 0.15); color: var(--accent-red); }
+        .check-icon.warn { background: rgba(250, 204, 21, 0.15); color: var(--accent-yellow); }
+
+        /* Suggestions */
+        .suggestion-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .suggestion-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 12px 14px;
+            background: var(--bg-input);
+            border-radius: var(--radius-sm);
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+        
+        .suggestion-item i {
+            color: var(--accent-yellow);
+            margin-top: 2px;
+            font-size: 8px;
+            flex-shrink: 0;
+        }
+
+        /* Dev Mode */
+        .dev-toggle {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 24px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border-subtle);
+        }
+        
+        .toggle-switch {
+            position: relative;
+            width: 36px;
+            height: 20px;
+            background: var(--bg-elevated);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background 0.2s;
+            border: 1px solid var(--border-subtle);
+        }
+        
+        .toggle-switch.active {
+            background: var(--accent-blue);
+            border-color: var(--accent-blue);
+        }
+        
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 14px;
+            height: 14px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.2s;
+        }
+        
+        .toggle-switch.active::after {
+            transform: translateX(16px);
+        }
+        
+        .toggle-label {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .dev-panel {
+            display: none;
+            margin-top: 12px;
+            padding: 16px;
+            background: var(--bg-input);
+            border-radius: var(--radius-md);
+            font-family: var(--font-mono);
+            font-size: 11px;
+            border: 1px solid var(--border-subtle);
+        }
+        
+        .dev-panel.active { 
+            display: block;
+        }
+        
+        .dev-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+        }
+        
+        .dev-key { color: var(--text-muted); }
+        .dev-value { color: var(--accent-blue); font-weight: 500; }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            margin-top: 32px;
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-left">
+                <div class="logo">
+                    <i class="fas fa-shield-halved"></i>
+                </div>
+                <div class="header-title">
+                    <h1>JobGuard AI</h1>
+                    <p>Fake Job Detection System</p>
+                </div>
+            </div>
+            <div class="status-indicator">
+                <span class="status-dot"></span>
+                System Active
+            </div>
+        </header>
+
+        <main>
+            <!-- Input Card -->
+            <div class="main-card">
+                <form method="POST" action="/">
+                    {% csrf_token %}
+
+                    <label class="input-label">Paste job description for analysis</label>
+                    
+                    <textarea 
+                        id="jobDescription" 
+                        name="job_description"
+                        class="input-field"
+                        placeholder="Paste the job posting text here..."
+                    ></textarea>
+
+                    <div class="input-actions">
+                        <button type="button" class="btn btn-sample-real" onclick="loadSample('real_job')">
+                            <i class="fas fa-check"></i> Real Job
+                        </button>
+                        <button type="button" class="btn btn-sample-fake" onclick="loadSample('fake_job')">
+                            <i class="fas fa-times"></i> Fake Job
+                        </button>
+                        <button type="button" class="btn" onclick="clearInput()">
+                            <i class="fas fa-eraser"></i> Clear
+                        </button>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" onclick="showLoading()">
+                        <i class="fas fa-search"></i>
+                        Analyze Job Posting
+                    </button>
+                </form>
+            </div>
+
+            <!-- Loading -->
+            <div class="loading-state" id="loadingState">
+                <div class="loading-spinner"></div>
+                <p class="loading-text">Analyzing job posting...</p>
+                <p class="loading-subtext">Scanning patterns and risk factors</p>
+            </div>
+
+            <!-- Error -->
+            <div class="error-state" id="errorState">
+                <i class="fas fa-exclamation-circle"></i>
+                <span id="errorText"></span>
+            </div>
+
+            <!-- Results -->
+            <div class="results-section" id="resultsSection">
+                
+                <!-- Main Result Card -->
+                <div class="result-card" id="resultCard">
+                    <div class="result-content">
+                        <div class="result-icon" id="resultIcon">
+                            <i class="fas fa-question"></i>
+                        </div>
+                        <div class="result-text">
+                            <h2 id="resultLabel">---</h2>
+                            <p id="resultSubtext">Analysis complete</p>
+                        </div>
+                    </div>
+                    <div class="result-metrics">
+                        <span class="risk-badge" id="riskBadge">---</span>
+                        <div class="confidence-label">Confidence</div>
+                        <div class="confidence-value" id="confidenceValue">---</div>
+                        <div class="risk-meter">
+                            <div class="risk-meter-bar">
+                                <div class="risk-meter-fill" id="riskMeterFill" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Grid -->
+                <div class="results-grid">
+                    <div class="panel">
+                        <div class="panel-title">Score Breakdown</div>
+                        <div class="score-list">
+                            <div class="score-item">
+                                <span class="score-name">ML Model</span>
+                                <span class="score-value" id="mlScoreValue" style="color: var(--accent-blue);">0%</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-name">Rule Engine</span>
+                                <span class="score-value" id="ruleScoreValue" style="color: var(--accent-yellow);">0%</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-name">Hybrid Score</span>
+                                <span class="score-value" id="hybridScoreValue">0%</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="panel">
+                        <div class="panel-title">Key Red Flags</div>
+                        <div class="keyword-list" id="keywordList"></div>
+                    </div>
+                </div>
+
+                <!-- Collapsible Sections -->
+                <div class="collapse-card open" id="collapseExplanation">
+                    <div class="collapse-header" onclick="toggleCollapse('collapseExplanation')">
+                        <div class="collapse-title">
+                            <i class="fas fa-info-circle" style="color: var(--accent-blue);"></i>
+                            Analysis Explanation
+                        </div>
+                        <i class="fas fa-chevron-down collapse-arrow"></i>
+                    </div>
+                    <div class="collapse-content">
+                        <p class="explanation-text" id="explanationText">Processing...</p>
+                    </div>
+                </div>
+
+                <div class="collapse-card" id="collapseChecklist">
+                    <div class="collapse-header" onclick="toggleCollapse('collapseChecklist')">
+                        <div class="collapse-title">
+                            <i class="fas fa-clipboard-check" style="color: var(--accent-green);"></i>
+                            Validation Checklist
+                        </div>
+                        <i class="fas fa-chevron-down collapse-arrow"></i>
+                    </div>
+                    <div class="collapse-content">
+                        <div class="checklist" id="checklistGrid"></div>
+                    </div>
+                </div>
+
+                <div class="collapse-card" id="collapseRecommendations">
+                    <div class="collapse-header" onclick="toggleCollapse('collapseRecommendations')">
+                        <div class="collapse-title">
+                            <i class="fas fa-lightbulb" style="color: var(--accent-yellow);"></i>
+                            Recommendations
+                        </div>
+                        <i class="fas fa-chevron-down collapse-arrow"></i>
+                    </div>
+                    <div class="collapse-content">
+                        <div class="suggestion-list" id="suggestionsList"></div>
+                    </div>
+                </div>
+
+                <!-- Dev Mode -->
+                <div class="dev-toggle">
+                    <div class="toggle-switch" id="devToggle" onclick="toggleDevMode()"></div>
+                    <span class="toggle-label">Developer Mode</span>
+                </div>
+                <div class="dev-panel" id="devPanel">
+                    <div class="dev-row">
+                        <span class="dev-key">Prediction</span>
+                        <span class="dev-value" id="devPrediction">-</span>
+                    </div>
+                    <div class="dev-row">
+                        <span class="dev-key">ML Probability</span>
+                        <span class="dev-value" id="devMLProb">-</span>
+                    </div>
+                    <div class="dev-row">
+                        <span class="dev-key">Rule Score</span>
+                        <span class="dev-value" id="devRuleScore">-</span>
+                    </div>
+                    <div class="dev-row">
+                        <span class="dev-key">Final Score</span>
+                        <span class="dev-value" id="devFinalScore">-</span>
+                    </div>
+                    <div class="dev-row">
+                        <span class="dev-key">Risk Level</span>
+                        <span class="dev-value" id="devRiskLevel">-</span>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="footer">
+            Hybrid ML + Rule-Based Detection System
+        </footer>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+    <script>
+        function showLoading() {
+            if (document.getElementById('jobDescription').value.trim()) {
+                document.getElementById('loadingState').classList.add('active');
+                document.getElementById('resultsSection').classList.remove('active');
+            }
+        }
+
+        window.onload = function () {
+            {% if result %}
+            displayResults({
+                prediction: "{{ result.prediction|escapejs }}",
+                fake_prob: {{ result.fake_probability|default:0 }},
+                real_prob: {{ result.real_probability|default:0 }},
+                risk_level: "{{ result.risk_level|escapejs }}",
+                final_score: {{ result.final_score|default:0 }},
+                ml_probability: {{ result.ml_probability|default:0 }} / 100,
+                rule_score: {{ result.rule_score|default:0 }},
+                reasons: {{ result.reasons|safe }},
+                suspicious_keywords: {{ result.suspicious_keywords|safe }},
+                checklist: {{ result.checklist|safe }},
+                explanation: {
+                    why_risky: "{{ result.explanation.why_risky|escapejs }}"
+                },
+                suggestions: {{ result.suggestions|safe }}
+            });
+            {% endif %}
+        };
+
+        const sampleJobs = {
+            real_job: `Software Engineer Position - TechCorp Inc.
+
+About Us:
+TechCorp Inc. is a leading technology company specializing in cloud solutions.
+
+Requirements:
+- Bachelor's degree in Computer Science or related field
+- 3+ years of experience with Python, Java, or similar languages
+- Experience with web frameworks like Django or Flask
+- Strong problem-solving skills
+
+Benefits:
+- Competitive salary ($80,000-$120,000)
+- Health insurance
+- 401(k) matching
+- Flexible work arrangement
+
+Apply through our career page at www.techcorp.com/careers`,
+
+            fake_job: `URGENT! Work from home! No experience needed!
+
+Earn guaranteed income of $5000/month working from your home!
+
+We are hiring immediately for part-time positions. No interview required!
+
+This is your chance to make quick money! Flexible hours!
+
+Limited seats available - apply now!
+
+You will be working for a confidential company that offers:
+- High salary up to $8000/month
+- Easy money doing simple tasks
+- No resume needed
+- Immediate hiring
+
+Just send your personal details including bank account for direct deposit.
+
+Apply now to secure your spot!`
+        };
+
+        function loadSample(type) {
+            document.getElementById('jobDescription').value = sampleJobs[type];
+            document.getElementById('jobDescription').focus();
+        }
+
+        function clearInput() {
+            document.getElementById('jobDescription').value = '';
+            document.getElementById('resultsSection').classList.remove('active');
+            document.getElementById('errorState').classList.remove('active');
+            document.getElementById('loadingState').classList.remove('active');
+            window.location.href = window.location.pathname;
+        }
+
+        function toggleCollapse(id) {
+            document.getElementById(id).classList.toggle('open');
+        }
+
+        function toggleDevMode() {
+            document.getElementById('devToggle').classList.toggle('active');
+            document.getElementById('devPanel').classList.toggle('active');
+        }
+
+        function displayResults(data) {
+            document.getElementById('loadingState').classList.remove('active');
+            const resultsSection = document.getElementById('resultsSection');
+            resultsSection.classList.add('active');
+
+            const prediction = (data.prediction || 'REAL').toUpperCase();
+            const card = document.getElementById('resultCard');
+            const icon = document.getElementById('resultIcon');
+            const label = document.getElementById('resultLabel');
+            const riskLevel = (data.risk_level || 'low').toLowerCase();
+            const riskScore = Math.round(data.final_score || data.fake_prob || 0);
+
+            card.className = 'result-card';
+            icon.className = 'result-icon';
+            label.className = '';
+
+            if (prediction === 'FAKE') {
+                card.classList.add('high-risk');
+                icon.classList.add('high-risk');
+                icon.innerHTML = '<i class="fas fa-times"></i>';
+                label.textContent = 'HIGH RISK JOB DETECTED';
+                label.classList.add('high-risk');
+            } else if (prediction === 'SUSPICIOUS') {
+                card.classList.add('suspicious');
+                icon.classList.add('suspicious');
+                icon.innerHTML = '<i class="fas fa-exclamation"></i>';
+                label.textContent = 'SUSPICIOUS JOB POSTING';
+                label.classList.add('suspicious');
+            } else {
+                card.classList.add('safe');
+                icon.classList.add('safe');
+                icon.innerHTML = '<i class="fas fa-check"></i>';
+                label.textContent = 'SAFE JOB POSTING';
+                label.classList.add('safe');
+            }
+
+            document.getElementById('riskBadge').className = `risk-badge ${riskLevel}`;
+            document.getElementById('riskBadge').textContent = riskLevel + ' Risk';
+            document.getElementById('confidenceValue').textContent = riskScore + '%';
+            
+            document.getElementById('riskMeterFill').className = `risk-meter-fill ${riskLevel}`;
+            setTimeout(() => {
+                document.getElementById('riskMeterFill').style.width = riskScore + '%';
+            }, 100);
+
+            setTimeout(() => {
+                document.getElementById('mlScoreValue').textContent = Math.round((data.ml_probability || 0) * 100) + '%';
+                document.getElementById('ruleScoreValue').textContent = Math.round(data.rule_score || 0) + '%';
+                document.getElementById('hybridScoreValue').textContent = riskScore + '%';
+            }, 200);
+
+            const keywordList = document.getElementById('keywordList');
+            keywordList.innerHTML = '';
+            if (data.suspicious_keywords && data.suspicious_keywords.length > 0) {
+                data.suspicious_keywords.slice(0, 6).forEach(kw => {
+                    const tag = document.createElement('span');
+                    tag.className = `keyword-tag ${kw.weight >= 4 ? 'high' : 'warning'}`;
+                    tag.textContent = kw.keyword;
+                    keywordList.appendChild(tag);
+                });
+            } else {
+                keywordList.innerHTML = '<span class="no-keywords"><i class="fas fa-check-circle"></i> No suspicious keywords</span>';
+            }
+
+            document.getElementById('explanationText').textContent = data.explanation?.why_risky || "Analysis completed.";
+
+            const checklistGrid = document.getElementById('checklistGrid');
+            checklistGrid.innerHTML = '';
+            const items = [
+                { label: 'Company Name', key: 'company_name', pass: 'Yes', fail: 'No' },
+                { label: 'Salary Info', key: 'salary_mentioned', pass: 'Yes', fail: 'No' },
+                { label: 'Unrealistic Pay', key: 'unrealistic_salary', pass: 'No', fail: 'Yes', invert: true },
+                { label: 'Professional Tone', key: 'professional_language', pass: 'Yes', fail: 'No' },
+                { label: 'Contact Info', key: 'contact_info', pass: 'Yes', fail: 'No' },
+                { label: 'Urgency', key: 'urgency_detected', pass: 'No', fail: 'Yes', invert: true },
+            ];
+            
+            items.forEach(item => {
+                const value = data.checklist ? data.checklist[item.key] : null;
+                let isPass = value === item.pass || (item.invert && value === 'Yes');
+                let isWarn = value === 'Mixed' || value === 'Suspicious';
+                
+                const div = document.createElement('div');
+                div.className = 'check-item';
+                div.innerHTML = `
+                    <div class="check-icon ${isPass ? 'pass' : isWarn ? 'warn' : 'fail'}">
+                        <i class="fas ${isPass ? 'fa-check' : isWarn ? 'fa-exclamation' : 'fa-times'}"></i>
+                    </div>
+                    ${item.label}
+                `;
+                checklistGrid.appendChild(div);
+            });
+
+            const suggestionsList = document.getElementById('suggestionsList');
+            suggestionsList.innerHTML = '';
+            (data.suggestions || ["Verify company details", "Cross-check contact info"]).forEach(s => {
+                const div = document.createElement('div');
+                div.className = 'suggestion-item';
+                div.innerHTML = `<i class="fas fa-chevron-right"></i> ${s}`;
+                suggestionsList.appendChild(div);
+            });
+
+            document.getElementById('devPrediction').textContent = data.prediction || '-';
+            document.getElementById('devMLProb').textContent = Math.round((data.ml_probability || 0) * 100) + '%';
+            document.getElementById('devRuleScore').textContent = Math.round(data.rule_score || 0) + '%';
+            document.getElementById('devFinalScore').textContent = riskScore + '%';
+            document.getElementById('devRiskLevel').textContent = data.risk_level || '-';
+
+            resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        document.getElementById('jobDescription').addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 'Enter') {
+                this.closest('form').submit();
+            }
+        });
+    </script>
+</body>
+</html>
